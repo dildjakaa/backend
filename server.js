@@ -34,7 +34,7 @@ mongoose
     try {
       const adminExists = await User.findOne({ usernameLower: 'uyqidioiw' });
       if (!adminExists) {
-        const adminPasswordHash = await bcrypt.hash('606404', 10);
+        const adminPasswordHash = await bcrypt.hash('606404', 8);
         await User.create({
           username: 'UyqidiOiw',
           usernameLower: 'uyqidioiw',
@@ -58,6 +58,15 @@ mongoose
 const app = express();
 app.use(cors());
 app.use(express.json());
+// Simple request logging
+app.use((req, res, next) => {
+  const start = Date.now();
+  res.on('finish', () => {
+    const ms = Date.now() - start;
+    console.log(`${req.method} ${req.originalUrl} -> ${res.statusCode} ${ms}ms`);
+  });
+  next();
+});
 
 // Validation functions
 function validateUsername(username) {
@@ -134,7 +143,7 @@ app.post('/api/auth/register', async (req, res) => {
     }
     
     console.log('🔐 Hashing password...');
-    const passwordHash = await bcrypt.hash(passwordValidation.password, 10);
+    const passwordHash = await bcrypt.hash(passwordValidation.password, 8);
     
     console.log('💾 Creating user...');
     const user = await User.create({ 
